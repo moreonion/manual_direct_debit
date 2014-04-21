@@ -1,0 +1,8 @@
+name = Manual direct debit
+description = Collect account and payment data and provide an export function for manual payment processing.
+core = 7.x
+
+dependencies[] = little_helpers
+dependencies[] = payment
+dependencies[] = payment_forms
+dependencies[] = webform_paymethod_select
