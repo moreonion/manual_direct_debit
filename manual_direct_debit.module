@@ -1,5 +1,6 @@
 <?php
 
+use \Drupal\little_helpers\Webform\Webform;
 use \Drupal\manual_direct_debit\AccountData;
 
 /**
@@ -59,5 +60,33 @@ function manual_direct_debit_payment_delete(Payment $payment) {
 /** 
  * Implements hook_webform_results_extra_data().
  */
-function manual_direct_debit_webform_results_extra_data($submissions) {
+function manual_direct_debit_webform_results_extra_data($submissions, $node) {
+  $sids = array_keys($submissions);
+  if (empty($sids)) {
+    return;
+  }
+
+  $extra_data = array();
+  $webform = new Webform($node);
+  foreach (array_keys($webform->componentsByType('paymethod_select')) as $cid) {
+    // We need to provide at least an empty array for every requested sid.
+    $data = array();
+    foreach ($sids as $sid) {
+      $data[$sid] = array();
+    }
+
+    $accounts = AccountData::bySubmissions($node->nid, $cid, $sids);
+    foreach ($accounts as $sid => $account) {
+      $data[$sid] = array(
+        'holder' => $account->holder,
+        'iban' => $account->account['iban'],
+        'bic' => $account->account['bic'],
+        'country' => $account->country,
+        'account' => $account->account['account'],
+        'bank_code' => $account->account['bank_code'],
+      );
+    }
+    $extra_data[] = $data;
+  }
+  return $extra_data;
 }

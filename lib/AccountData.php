@@ -9,15 +9,34 @@ class AccountData extends \Drupal\little_helpers\DB\Model {
   protected static $serial = FALSE;
   protected static $serialize = array('account' => TRUE);
 
+  public static function queryBase() {
+    return db_select(static::$table, 'a')->fields('a');
+  }
+
   public static function load($pid) {
-    $row = db_select(static::$table, $a)
-      ->fields('a')
-      ->condition('pid', $pid)
-      ->execute()
-      ->fetch();
+    $row = static::queryBase()->condition('pid', $pid)->execute()->fetch();
     if ($row) {
       return new static($row, FALSE);
     }
+  }
+
+  public static function bySubmissions($nid, $cid, $sids) {
+    $query = static::queryBase();
+    $query->innerJoin(
+      'webform_submitted_data', 's', 's.nid=:nid AND s.cid=:cid AND s.data=a.pid',
+      array(':nid' => $nid, ':cid' => $cid)
+    );
+    $query->fields('s', array('sid'));
+    $query->condition('s.sid', $sids, 'IN');
+
+    $data = array();
+    foreach ($query->execute() as $row) {
+      $sid = $row->sid;
+      unset($row->sid);
+      $obj = new static($row, FALSE);
+      $data[$sid] = $obj;
+    }
+    return $data;
   }
 
   public static function fromPayment(\Payment $payment, $new = FALSE) {
