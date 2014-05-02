@@ -2,6 +2,7 @@
 
 use \Drupal\little_helpers\Webform\Webform;
 use \Drupal\manual_direct_debit\AccountData;
+use \Drupal\manual_direct_debit\AccountDataController;
 
 /**
  * Implements hook_payment_method_controller_info().
@@ -29,36 +30,49 @@ function manual_direct_debit_entity_load(array $entities, $entity_type) {
   }
 }
 
-function _manual_direct_debit_serialize_account(Payment $payment) {
-  $keys = array('iban', 'bic', 'account', 'bank_code');
-  $data = array();
-  foreach ($keys as $key) {
-    $data[$key] = isset($payment->method_data[$key]) ? $payment->method_data[$key] : NULL;
+/**
+ * Implements hook_ENTITY_TYPE_ACTION().
+ */
+function manual_direct_debit_payment_insert(Payment $payment) {
+  if (!($payment->method->controller instanceof AccountDataController)) {
+    return;
   }
-  return serialize($data);
+  AccountData::fromPayment($payment, TRUE)->save();
 }
 
 /**
  * Implements hook_ENTITY_TYPE_ACTION().
  */
-function manual_direct_debit_payment_insert(Payment $payment) {
-  if (!($payment->method->controller instanceof \Drupal\manual_direct_debit\AccountDataController))
-    return;
-  AccountData::fromPayment($payment, TRUE)->save();
-}
 function manual_direct_debit_payment_update(Payment $payment) {
-  if (!($payment->method->controller instanceof \Drupal\manual_direct_debit\AccountDataController))
+  if (!($payment->method->controller instanceof AccountDataController)) {
     return;
+  }
   AccountData::fromPayment($payment, FALSE)->save();
 }
+
+/**
+ * Implements hook_ENTITY_TYPE_ACTION().
+ */
 function manual_direct_debit_payment_delete(Payment $payment) {
-  if (!($payment->method->controller instanceof \Drupal\manual_direct_debit\AccountDataController))
+  if (!($payment->method->controller instanceof AccountDataController)) {
     return;
+  }
   AccountData::fromPayment($payment, FALSE)->delete();
 }
 
 /** 
  * Implements hook_webform_results_extra_data().
+ *
+ * Add extra data to webform submission results.
+ *
+ * @param stdclass[] $submissions
+ *   A list of webform submission objects keyed by their sids.
+ * @param stdclass $node
+ *   The node object of the webform.
+ * @return array[][]
+ *   An array of arrays containing extra keyed by sids. Each of those extra
+ *   data arrays is an associative array of the form
+ *   $data['column_title'] = 'value';
  */
 function manual_direct_debit_webform_results_extra_data($submissions, $node) {
   $sids = array_keys($submissions);
@@ -69,7 +83,7 @@ function manual_direct_debit_webform_results_extra_data($submissions, $node) {
   $extra_data = array();
   $webform = new Webform($node);
   foreach (array_keys($webform->componentsByType('paymethod_select')) as $cid) {
-    // We need to provide at least an empty array for every requested sid.
+    // Provide at least an empty array for every requested sid.
     $data = array();
     foreach ($sids as $sid) {
       $data[$sid] = array();

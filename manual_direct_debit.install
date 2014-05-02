@@ -1,6 +1,11 @@
 <?php
 
 /**
+ * @file
+ * Module management functions (install, update, uninstall).
+ */
+
+/**
  * Implements hook_schema().
  */
 function manual_direct_debit_schema() {
@@ -38,11 +43,4 @@ function manual_direct_debit_schema() {
     'primary key' => array('pid'),
   );
   return $schema;
-}
-
-/**
- * Activate services_oauth and xmlrpc.
- */
-function manual_direct_debit_update_1() {
-  module_enable(array('services_oauth', 'xmlrpc_server'));
 }
