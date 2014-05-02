@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * @file
+ * Hook implementations.
+ */
+
 use \Drupal\little_helpers\Webform\Webform;
 use \Drupal\manual_direct_debit\AccountData;
 use \Drupal\manual_direct_debit\AccountDataController;
@@ -15,8 +20,9 @@ function manual_direct_debit_payment_method_controller_info() {
  * Implements hook_entity_load().
  */
 function manual_direct_debit_entity_load(array $entities, $entity_type) {
-  if ($entity_type != 'payment')
+  if ($entity_type != 'payment') {
     return;
+  }
   $query = db_select('manual_direct_debit_account_data', 'd')
     ->fields('d')
     ->condition('pid', array_keys($entities));
@@ -60,7 +66,7 @@ function manual_direct_debit_payment_delete(Payment $payment) {
   AccountData::fromPayment($payment, FALSE)->delete();
 }
 
-/** 
+/**
  * Implements hook_webform_results_extra_data().
  *
  * Add extra data to webform submission results.
@@ -69,6 +75,7 @@ function manual_direct_debit_payment_delete(Payment $payment) {
  *   A list of webform submission objects keyed by their sids.
  * @param stdclass $node
  *   The node object of the webform.
+ *
  * @return array[][]
  *   An array of arrays containing extra keyed by sids. Each of those extra
  *   data arrays is an associative array of the form

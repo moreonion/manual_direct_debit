@@ -43,10 +43,12 @@ class AccountData extends \Drupal\little_helpers\DB\Model {
    * @param int $nid
    *   The node's nid of the webform node.
    * @param int $cid
-   *   The webform_components.cid of the component having a payment.pid as value.
+   *   The cid of the webform_component having a payment.pid as value.
+   *   Usually this will be a paymethod_select component.
    * @param int[] $sids
    *   A list of submission ids to load the account data for.
-   * @return
+   *
+   * @return \Drupal\manual_direct_debit\AccountData[]
    *   An associative array containing a AccountData objects keyed by
    *   submission ids.
    */
