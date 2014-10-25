@@ -81,7 +81,7 @@ class AccountData extends \Drupal\little_helpers\DB\Model {
     $data['holder'] = $md['holder'];
     $data['country'] = $md['country'];
     $data['account'] = array();
-    foreach (array('iban', 'bic', 'account', 'bank_code') as $key) {
+    foreach (array('iban', 'bic', 'account', 'bank_code', 'payment_date') as $key) {
       $data['account'][$key] = isset($md[$key]) ? $md[$key] : NULL;
     }
     return new static($data, $new);
