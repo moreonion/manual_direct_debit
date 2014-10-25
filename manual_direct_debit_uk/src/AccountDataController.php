@@ -9,6 +9,6 @@ class AccountDataController extends \Drupal\manual_direct_debit\AccountDataContr
   public function __construct() {
     parent::__construct();
     $this->title = t('Collect account data (UK)');
-    $this->form = new \Drupal\payment_forms\AccountForm();
+    $this->form = new \Drupal\manual_direct_debit_uk\AccountForm();
   }
 }
