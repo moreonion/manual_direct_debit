@@ -67,47 +67,65 @@ function manual_direct_debit_payment_delete(Payment $payment) {
 }
 
 /**
- * Implements hook_webform_results_extra_data().
- *
- * Add extra data to webform submission results.
- *
- * @param stdclass[] $submissions
- *   A list of webform submission objects keyed by their sids.
- * @param stdclass $node
- *   The node object of the webform.
- *
- * @return array[][]
- *   An array of arrays containing extra keyed by sids. Each of those extra
- *   data arrays is an associative array of the form
- *   $data['column_title'] = 'value';
+ * Implements hook_webform_submission_load().
  */
-function manual_direct_debit_webform_results_extra_data($submissions, $node) {
+function manual_direct_debit_webform_submission_load(&$submissions) {
   $sids = array_keys($submissions);
   if (empty($sids)) {
     return;
   }
-
-  $extra_data = array();
-  $webform = new Webform($node);
-  foreach (array_keys($webform->componentsByType('paymethod_select')) as $cid) {
-    // Provide at least an empty array for every requested sid.
-    $data = array();
-    foreach ($sids as $sid) {
-      $data[$sid] = array();
-    }
-
-    $accounts = AccountData::bySubmissions($node->nid, $cid, $sids);
-    foreach ($accounts as $sid => $account) {
-      $data[$sid] = array(
-        'holder' => $account->holder,
-        'iban' => $account->account['iban'],
-        'bic' => $account->account['bic'],
-        'country' => $account->country,
-        'account' => $account->account['account'],
-        'bank_code' => $account->account['bank_code'],
-      );
-    }
-    $extra_data[] = $data;
+  $load = array();
+  foreach ($submissions as $sid => $submission) {
+    $load[$submission->nid][] = $sid;
   }
-  return $extra_data;
+  foreach ($load as $nid => $sids) {
+    $node = node_load($nid);
+    $webform = new Webform($node);
+    foreach (array_keys($webform->componentsByType('paymethod_select')) as $cid) {
+      $accounts = AccountData::bySubmissions($nid, $cid, $sids);
+      foreach ($accounts as $sid => $account) {
+        $submissions[$sid]->manual_direct_debit = $account->data();
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_webform_submission_results_download_submission_information_info().
+ *
+ * @param stdclass $node
+ * @param array $options
+ */
+function manual_direct_debit_webform_results_download_submission_information_info($node, $options) {
+  $webform = new Webform($node);
+  $components = $webform->componentsByType('paymethod_select');
+  $info = array();
+  if (count($components)) {
+    $info['account_holder'] = t('Account holder');
+    $info['account_iban'] = t('IBAN');
+    $info['account_bic'] = t('BIC');
+    $info['account_country'] = t('Account country');
+    $info['account_number'] = t('Account number');
+    $info['account_bank_code'] = t('Bank code');
+    $info['account_payment_date'] = t('Payment date');
+  }
+  return $info;
+}
+
+/**
+ * Implements hook_webform_submission_results_download_submission_information_data().
+ */
+function manual_direct_debit_webform_results_download_submission_information_data($submission, array $options, $serial_start, $row_count) {
+  if (empty($submission->manual_direct_debit)) {
+    return;
+  }
+  $d = $submission->manual_direct_debit;
+  $data['account_holder'] = $d['holder'];
+  $data['account_country'] = $d['country'];
+  $data['account_iban'] = $d['account']['iban'];
+  $data['account_bic'] = $d['account']['bic'];
+  $data['account_number'] = $d['account']['account'];
+  $data['account_bank_code'] = $d['account']['bank_code'];
+  $data['account_payment_date'] = $d['account']['payment_date'];
+  return $data;
 }

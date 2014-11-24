@@ -86,4 +86,10 @@ class AccountData extends \Drupal\little_helpers\DB\Model {
     }
     return new static($data, $new);
   }
+
+  public function data() {
+    $data = $this->values(array('holder', 'account', 'country'));
+    $data['account'] = unserialize($data['account']);
+    return $data;
+  }
 }
