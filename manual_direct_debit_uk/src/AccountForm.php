@@ -9,16 +9,18 @@ class AccountForm implements FormInterface {
   static protected $id = 0;
 
   public function getForm(array &$form, array &$form_state, PaymentContextInterface $context) {
-    $form['payment_date'] = array(
-      '#type' => 'select',
-      '#title' => t('Payment date'),
-      '#description' => t('On which date would you like the donation to be made each month?'),
-      '#options' => array(
-        '1st' => '1st of the month',
-        '15th' => '15th of the month',
-        '28th' => '28th of the month',
-      ),
-    );
+    if ($context && $context->value('donation_interval') != 1) {
+      $form['payment_date'] = array(
+        '#type' => 'select',
+        '#title' => t('Payment date'),
+        '#description' => t('On which date would you like the donation to be made each month?'),
+        '#options' => array(
+          '1st' => '1st of the month',
+          '15th' => '15th of the month',
+          '28th' => '28th of the month',
+        ),
+      );
+    }
     $form['holder'] = array(
       '#type' => 'textfield',
       '#title' => t('Account holder(s)'),
@@ -38,6 +40,8 @@ class AccountForm implements FormInterface {
 
   public function validateForm(array &$element, array &$form_state) {
     $values = &drupal_array_get_nested_value($form_state['values'], $element['#parents']);
+    // In case we have a one-off donation.
+    $values += array('payment_date' => NULL);
 
     if (empty($values['holder']) == TRUE) {
       form_error($element['holder'], t('Please enter the name of the account holder(s).'));
