@@ -38,40 +38,6 @@ class AccountData extends \Drupal\little_helpers\DB\Model {
   }
 
   /**
-   * Loads a list AccountData objects that belong to webform submissions.
-   *
-   * @param int $nid
-   *   The node's nid of the webform node.
-   * @param int $cid
-   *   The cid of the webform_component having a payment.pid as value.
-   *   Usually this will be a paymethod_select component.
-   * @param int[] $sids
-   *   A list of submission ids to load the account data for.
-   *
-   * @return \Drupal\manual_direct_debit\AccountData[]
-   *   An associative array containing a AccountData objects keyed by
-   *   submission ids.
-   */
-  public static function bySubmissions($nid, $cid, $sids) {
-    $query = static::queryBase();
-    $query->innerJoin(
-      'webform_submitted_data', 's', 's.nid=:nid AND s.cid=:cid AND s.data=a.pid',
-      array(':nid' => $nid, ':cid' => $cid)
-    );
-    $query->fields('s', array('sid'));
-    $query->condition('s.sid', $sids, 'IN');
-
-    $data = array();
-    foreach ($query->execute() as $row) {
-      $sid = $row->sid;
-      unset($row->sid);
-      $obj = new static($row, FALSE);
-      $data[$sid] = $obj;
-    }
-    return $data;
-  }
-
-  /**
    * Constructs an AccountData object based on a payment object.
    */
   public static function fromPayment(\Payment $payment, $new = FALSE) {

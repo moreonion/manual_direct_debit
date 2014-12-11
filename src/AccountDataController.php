@@ -51,4 +51,33 @@ class AccountDataController extends \PaymentMethodController implements PaymentR
   public function execute(\Payment $payment) {
     $payment->setStatus(new \PaymentStatusItem(PAYMENT_STATUS_SUCCESS));
   }
+
+  /**
+   * Column headers for webform data.
+   */
+  public function webformDataInfo() {
+    $info['account_holder'] = t('Account holder');
+    $info['account_iban'] = t('IBAN');
+    $info['account_bic'] = t('BIC');
+    $info['account_country'] = t('Account country');
+    $info['account_number'] = t('Account number');
+    $info['account_bank_code'] = t('Bank code');
+    $info['account_payment_date'] = t('Payment date');
+    return $info;
+  }
+
+  /**
+   * Data for webform results.
+   */
+  public function webformData(\Payment $payment) {
+    $d = $payment->method_data;
+    $data['account_holder'] = $d['holder'];
+    $data['account_country'] = $d['country'];
+    $data['account_iban'] = $d['iban'];
+    $data['account_bic'] = $d['bic'];
+    $data['account_number'] = $d['account'];
+    $data['account_bank_code'] = $d['bank_code'];
+    $data['account_payment_date'] = $d['payment_date'];
+    return $data;
+  }
 }
