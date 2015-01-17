@@ -4,4 +4,5 @@ core = 7.x
 
 dependencies[] = manual_direct_debit
 dependencies[] = payment
+dependencies[] = payment_context
 dependencies[] = psr0
