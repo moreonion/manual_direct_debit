@@ -3,12 +3,12 @@
 namespace Drupal\manual_direct_debit_uk;
 
 use \Drupal\payment_forms\FormInterface;
-use \Drupal\payment_forms\PaymentContextInterface;
 
 class AccountForm implements FormInterface {
   static protected $id = 0;
 
-  public function getForm(array &$form, array &$form_state, PaymentContextInterface $context) {
+  public function getForm(array &$form, array &$form_state, \Payment $payment) {
+    $context = $payment->contextObj;
     if ($context && $context->value('donation_interval') != 1) {
       $form['payment_date'] = array(
         '#type' => 'select',
@@ -38,7 +38,7 @@ class AccountForm implements FormInterface {
     return $form;
   }
 
-  public function validateForm(array &$element, array &$form_state) {
+  public function validateForm(array &$element, array &$form_state, \Payment $payment) {
     $values = &drupal_array_get_nested_value($form_state['values'], $element['#parents']);
     // In case we have a one-off donation.
     $values += array('payment_date' => NULL);
@@ -57,7 +57,7 @@ class AccountForm implements FormInterface {
       form_error($element['bank_code'], t('Please enter valid Branch Sort Code.'));
     }
 
-    $method_data = &$form_state['payment']->method_data;
+    $method_data = &$payment->method_data;
     $method_data['holder'] = $values['holder'];
     $method_data['country'] = 'GB';
     $method_data['account'] = $values['account'];
