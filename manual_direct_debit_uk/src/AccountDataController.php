@@ -14,9 +14,11 @@ class AccountDataController extends \Drupal\manual_direct_debit\AccountDataContr
 
   function validate(\Payment $payment, \PaymentMethod $payment_method, $strict) {
     parent::validate($payment, $payment_method, $strict);
-    $interval = $payment->contextObj->value('donation_interval');
-    if (!$interval || $interval == '1') {
-      throw new \PaymentValidationException('This payment method does not support one-off payments.');
+    if ($strict) {
+      $interval = $payment->contextObj->value('donation_interval');
+      if (!$interval || $interval == '1') {
+        throw new \PaymentValidationException('This payment method does not support one-off payments.');
+      }
     }
   }
 }
