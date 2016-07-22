@@ -4,7 +4,6 @@ namespace Drupal\manual_direct_debit_uk;
 
 use \Drupal\payment_forms\FormInterface;
 
-include_once 'AccountValidation.php';
 
 class AccountForm implements FormInterface {
   static protected $id = 0;
@@ -64,8 +63,8 @@ class AccountForm implements FormInterface {
       $prevalidation_failed = TRUE;
     }
 
-    if (!$prevalidation_failed) {
-      $pa = new BankAccountValidation_Interactive_Validate_v2_00 (variable_get('pca_bank_account_validation_key'), $values['account'], $values['bank_code']);
+    if (!$prevalidation_failed && $key = variable_get('pca_bank_account_validation_key')) {
+      $pa = new AccountValidation($key, $values['account'], $values['bank_code']);
       $pa->MakeRequest();
       if ($error = $pa->HasError()) {
         if ($error['id'] == 1003 || $error['id'] == 1004) {
