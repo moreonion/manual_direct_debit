@@ -33,7 +33,7 @@ class AccountForm implements FormInterface {
     $form['bank_code'] = array(
       '#type' => 'textfield',
       '#title' => t('Branch Sort Code'),
-      '#maxlength' => 6,
+      '#maxlength' => 8,
     );
     return $form;
   }
@@ -52,8 +52,8 @@ class AccountForm implements FormInterface {
       form_error($element['account'], t('Please enter valid Account Number.'));
     }
 
-    $values['bank_code'] = trim($values['bank_code']);
-    if (!$values['bank_code'] || !preg_match('/[0-9]{2,6}/', $values['bank_code'])) {
+    $values['bank_code'] = trim(str_replace('-', '', $values['bank_code']));
+    if (!$values['bank_code'] || !preg_match('/[0-9]{6}/', $values['bank_code'])) {
       form_error($element['bank_code'], t('Please enter valid Branch Sort Code.'));
     }
 
