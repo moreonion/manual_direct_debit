@@ -48,7 +48,7 @@ class AccountForm implements FormInterface {
     }
 
     $values['account'] = trim($values['account']);
-    if (!$values['account'] || !preg_match('/[0-9]{2,11}/', $values['account'])) {
+    if (!$values['account'] || !preg_match('/[0-9]{6,10}/', $values['account'])) {
       form_error($element['account'], t('Please enter valid Account Number.'));
     }
 
