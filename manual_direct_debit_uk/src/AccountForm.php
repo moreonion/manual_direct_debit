@@ -68,11 +68,12 @@ class AccountForm implements FormInterface {
       $pa = new BankAccountValidation_Interactive_Validate_v2_00 (variable_get('pca_bank_account_validation_key'), $values['account'], $values['bank_code']);
       $pa->MakeRequest();
       if ($error = $pa->HasError()) {
-        # Which field caused the error?
         if ($error['id'] == 1003 || $error['id'] == 1004) {
           form_error($element['account'], t('Please enter valid Account Number.'));
         } elseif ($error['id'] == 1001 || $error['id'] == 1002) {
           form_error($element['bank_code'], t('Please enter valid Branch Sort Code.'));
+        } elseif ($error['id'] == 3) {
+          form_error($element['account'], t('Please check your account balance.'));
         } else {
           function_exists('watchdog') && watchdog('manual_direct_debit_uk', 'PCA Bank Account Validation Error: ' . $error['debug_info'], NULL, WATCHDOG_WARNING);
         }
