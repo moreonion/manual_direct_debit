@@ -71,8 +71,6 @@ class AccountForm implements FormInterface {
           form_error($element['account'], t('Please enter valid Account Number.'));
         } elseif ($error['id'] == 1001 || $error['id'] == 1002) {
           form_error($element['bank_code'], t('Please enter valid Branch Sort Code.'));
-        } elseif ($error['id'] == 3) {
-          form_error($element['account'], t('Please check your account balance.'));
         } else {
           function_exists('watchdog') && watchdog('manual_direct_debit_uk', 'PCA Bank Account Validation Error: ' . $error['debug_info'], NULL, WATCHDOG_WARNING);
         }
