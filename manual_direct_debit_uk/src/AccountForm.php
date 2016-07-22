@@ -86,14 +86,43 @@ class AccountForm implements PaymentFormInterface {
       form_error($element['holder'], t('Please enter the name of the account holder(s).'));
     }
 
+    // Simple pre-validation
+    $prevalidation_failed = FALSE;
+
     $values['account'] = trim($values['account']);
     if (!$values['account'] || !preg_match('/^[0-9]{6,10}$/', $values['account'])) {
       form_error($element['account'], t('Please enter valid Account Number.'));
+      $prevalidation_failed = TRUE;
     }
 
     $values['bank_code'] = trim(str_replace('-', '', $values['bank_code']));
     if (!$values['bank_code'] || !preg_match('/^[0-9]{6}$/', $values['bank_code'])) {
       form_error($element['bank_code'], t('Please enter valid Branch Sort Code.'));
+      $prevalidation_failed = TRUE;
+    }
+
+    if (!$prevalidation_failed) {
+      $pa = new BankAccountValidation_Interactive_Validate_v2_00 (variable_get('pca_bank_account_validation_key'), $values['account'], $values['bank_code']);
+      $pa->MakeRequest();
+      if ($error = $pa->HasError()) {
+        # Which field caused the error?
+        if ($error['id'] == 1003 || $error['id'] == 1004) {
+          form_error($element['account'], t('Please enter valid Account Number.'));
+        } elseif ($error['id'] == 1001 || $error['id'] == 1002) {
+          form_error($element['bank_code'], t('Please enter valid Branch Sort Code.'));
+        } else {
+          function_exists('watchdog') && watchdog('manual_direct_debit_uk', 'PCA Bank Account Validation Error: ' . $error['debug_info'], NULL, WATCHDOG_WARNING);
+        }
+      }
+      if ($data = $pa->HasData()) {
+        $item = $data[0];
+        if (!$item["IsDirectDebitCapable"]) {
+          form_error($element['account'], t('Please provide an account that can accept direct debits.'));
+        }
+        if (!$item["IsCorrect"]) {
+          form_error($element['account'], t('Please provide valid account details.'));
+        }
+      }
     }
 
     $method_data = &$payment->method_data;
