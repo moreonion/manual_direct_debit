@@ -2,7 +2,7 @@
 
 namespace Drupal\manual_direct_debit_uk;
 
-class BankAccountValidation_Interactive_Validate_v2_00 {
+class AccountValidation {
 
   //Credit: Thanks to Stuart Sillitoe (http://stu.so/me) for the original PHP that these samples are based on.
 
@@ -40,7 +40,26 @@ class BankAccountValidation_Interactive_Validate_v2_00 {
     //Copy the data
     if ( !empty($file->Rows) ) {
       foreach ($file->Rows->Row as $item) {
-        $this->Data[] = array('IsCorrect'=>$item->attributes()->IsCorrect,'IsDirectDebitCapable'=>$item->attributes()->IsDirectDebitCapable,'StatusInformation'=>$item->attributes()->StatusInformation,'CorrectedSortCode'=>$item->attributes()->CorrectedSortCode,'CorrectedAccountNumber'=>$item->attributes()->CorrectedAccountNumber,'IBAN'=>$item->attributes()->IBAN,'Bank'=>$item->attributes()->Bank,'BankBIC'=>$item->attributes()->BankBIC,'Branch'=>$item->attributes()->Branch,'BranchBIC'=>$item->attributes()->BranchBIC,'ContactAddressLine1'=>$item->attributes()->ContactAddressLine1,'ContactAddressLine2'=>$item->attributes()->ContactAddressLine2,'ContactPostTown'=>$item->attributes()->ContactPostTown,'ContactPostcode'=>$item->attributes()->ContactPostcode,'ContactPhone'=>$item->attributes()->ContactPhone,'ContactFax'=>$item->attributes()->ContactFax,'FasterPaymentsSupported'=>$item->attributes()->FasterPaymentsSupported,'CHAPSSupported'=>$item->attributes()->CHAPSSupported);
+        $this->Data[] = array(
+          'IsCorrect' => $item->attributes()->IsCorrect,
+          'IsDirectDebitCapable' => $item->attributes()->IsDirectDebitCapable,
+          'StatusInformation' => $item->attributes()->StatusInformation,
+          'CorrectedSortCode' => $item->attributes()->CorrectedSortCode,
+          'CorrectedAccountNumber' => $item->attributes()->CorrectedAccountNumber,
+          'IBAN' => $item->attributes()->IBAN,
+          'Bank' => $item->attributes()->Bank,
+          'BankBIC' => $item->attributes()->BankBIC,
+          'Branch' => $item->attributes()->Branch,
+          'BranchBIC' => $item->attributes()->BranchBIC,
+          'ContactAddressLine1' => $item->attributes()->ContactAddressLine1,
+          'ContactAddressLine2' => $item->attributes()->ContactAddressLine2,
+          'ContactPostTown' => $item->attributes()->ContactPostTown,
+          'ContactPostcode' => $item->attributes()->ContactPostcode,
+          'ContactPhone' => $item->attributes()->ContactPhone,
+          'ContactFax' => $item->attributes()->ContactFax,
+          'FasterPaymentsSupported' => $item->attributes()->FasterPaymentsSupported,
+          'CHAPSSupported' => $item->attributes()->CHAPSSupported
+        );
       }
     }
   }
