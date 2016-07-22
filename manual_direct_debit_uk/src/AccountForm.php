@@ -48,12 +48,12 @@ class AccountForm implements FormInterface {
     }
 
     $values['account'] = trim($values['account']);
-    if (!$values['account'] || !preg_match('/[0-9]{6,10}/', $values['account'])) {
+    if (!$values['account'] || !preg_match('/^[0-9]{6,10}$/', $values['account'])) {
       form_error($element['account'], t('Please enter valid Account Number.'));
     }
 
     $values['bank_code'] = trim(str_replace('-', '', $values['bank_code']));
-    if (!$values['bank_code'] || !preg_match('/[0-9]{6}/', $values['bank_code'])) {
+    if (!$values['bank_code'] || !preg_match('/^[0-9]{6}$/', $values['bank_code'])) {
       form_error($element['bank_code'], t('Please enter valid Branch Sort Code.'));
     }
 
