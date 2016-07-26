@@ -19,48 +19,43 @@ class AccountValidation {
   }
 
   function MakeRequest() {
-    $url = "https://services.postcodeanywhere.co.uk/BankAccountValidation/Interactive/Validate/v2.00/xmla.ws?";
+    $url = "https://services.postcodeanywhere.co.uk/BankAccountValidation/Interactive/Validate/v2.00/json.ws?";
     $url .= "&Key=" . urlencode($this->Key);
     $url .= "&AccountNumber=" . urlencode($this->AccountNumber);
     $url .= "&SortCode=" . urlencode($this->SortCode);
 
-    //Make the request to Postcode Anywhere and parse the XML returned
-    $file = simplexml_load_file($url);
-
-    //Check for an error, if there is one then throw an exception
-    if ($file->Columns->Column->attributes()->Name == "Error") {
-      $this->Error = array(
-        'id' => $file->Rows->Row->attributes()->Error,
-        'description' => $file->Rows->Row->attributes()->Description,
-        'resolution' => $file->Rows->Row->attributes()->Resolution,
-        'debug_info' => "[KEY] " . $this->Key . " [ACCOUNT] " . $this->AccountNumber . " [SORTCODE] " . $this->SortCode .  " [ID] " . $file->Rows->Row->attributes()->Error . " [DESCRIPTION] " . $file->Rows->Row->attributes()->Description . " [CAUSE] " . $file->Rows->Row->attributes()->Cause . " [RESOLUTION] " . $file->Rows->Row->attributes()->Resolution,
-      );
+    // Make the request to Postcode Anywhere and parse the JSON returned
+    $response = drupal_http_request($url, ["timeout" => 5]);
+    if ($response->code != 200) {
+      $exception = new \Exception("Could not connect to PCA server");
+      function_exists("watchdog_exception") && watchdog_exception("manual_direct_debit_uk", $exception);
+      return;
     }
+    $json = json_decode($response->data);
+    if (!$json) {
+      $exception = new \Exception("Could not parse response data as JSON");
+      function_exists("watchdog_exception") && watchdog_exception("manual_direct_debit_uk", $exception);
+      return;
+    }
+    $data = $json[0];
 
-    //Copy the data
-    if ( !empty($file->Rows) ) {
-      foreach ($file->Rows->Row as $item) {
-        $this->Data[] = array(
-          'IsCorrect' => $item->attributes()->IsCorrect,
-          'IsDirectDebitCapable' => $item->attributes()->IsDirectDebitCapable,
-          'StatusInformation' => $item->attributes()->StatusInformation,
-          'CorrectedSortCode' => $item->attributes()->CorrectedSortCode,
-          'CorrectedAccountNumber' => $item->attributes()->CorrectedAccountNumber,
-          'IBAN' => $item->attributes()->IBAN,
-          'Bank' => $item->attributes()->Bank,
-          'BankBIC' => $item->attributes()->BankBIC,
-          'Branch' => $item->attributes()->Branch,
-          'BranchBIC' => $item->attributes()->BranchBIC,
-          'ContactAddressLine1' => $item->attributes()->ContactAddressLine1,
-          'ContactAddressLine2' => $item->attributes()->ContactAddressLine2,
-          'ContactPostTown' => $item->attributes()->ContactPostTown,
-          'ContactPostcode' => $item->attributes()->ContactPostcode,
-          'ContactPhone' => $item->attributes()->ContactPhone,
-          'ContactFax' => $item->attributes()->ContactFax,
-          'FasterPaymentsSupported' => $item->attributes()->FasterPaymentsSupported,
-          'CHAPSSupported' => $item->attributes()->CHAPSSupported
-        );
+    // Check for Errors
+    if (isset($data->Error)) {
+      if ($data->Error < 100) {
+        // General errors throw an exception
+        $exception = new \Exception($data->Error);
+        $message = "Error: " . $data->Description . " – "  . $data->Cause . "\n" . $data->Resolution;
+        function_exists("watchdog_exception") && watchdog_exception("manual_direct_debit_uk", $exception, $message);
       }
+      $this->Error = array(
+        "id" => $data->Error,
+        "description" => $data->Description,
+        "cause" => $data->Cause,
+        "resolution" => $data->Resolution
+      );
+    } else {
+      // Save the Data
+      $this->Data = $data;
     }
   }
 
@@ -77,5 +72,4 @@ class AccountValidation {
     }
     return false;
   }
-
 }
