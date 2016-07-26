@@ -65,21 +65,24 @@ class AccountForm implements FormInterface {
 
     if (!$prevalidation_failed && $key = variable_get('pca_bank_account_validation_key')) {
       $pa = new AccountValidation($key, $values['account'], $values['bank_code']);
-      $pa->MakeRequest();
-      if ($error = $pa->HasError()) {
-        if ($error['id'] == 1003 || $error['id'] == 1004) {
-          form_error($element['account'], t('Please enter valid Account Number.'));
-        } elseif ($error['id'] == 1001 || $error['id'] == 1002) {
-          form_error($element['bank_code'], t('Please enter valid Branch Sort Code.'));
+      $validation = $pa->makeRequest();
+      if (isset($validation->Error)) {
+        switch ($validation->Error) {
+          case '1001':
+          case '1002':
+            form_error($element['bank_code'], t('Please enter a valid Branch Sort Code.'));
+            break;
+          case '1003':
+          case '1004':
+            form_error($element['account'], t('Please enter a valid Account Number.'));
+            break;
         }
       }
-      if ($data = $pa->HasData()) {
-        if (isset($data->IsDirectDebitCapable) && $data->IsDirectDebitCapable == 'False') {
-          form_error($element['account'], t('Please provide an account that can accept direct debits.'));
-        }
-        if (isset($data->IsCorrect) && $data->IsCorrect == 'False') {
-          form_error($element['account'], t('Please provide valid account details.'));
-        }
+      if (isset($validation->IsDirectDebitCapable) && $validation->IsDirectDebitCapable == 'False') {
+        form_error($element['account'], t('Please provide an account that can accept direct debits.'));
+      }
+      if (isset($validation->IsCorrect) && $validation->IsCorrect == 'False') {
+        form_error($element['account'], t('Please provide valid account details.'));
       }
     }
 
