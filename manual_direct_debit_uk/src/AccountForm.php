@@ -109,16 +109,13 @@ class AccountForm implements PaymentFormInterface {
           form_error($element['account'], t('Please enter valid Account Number.'));
         } elseif ($error['id'] == 1001 || $error['id'] == 1002) {
           form_error($element['bank_code'], t('Please enter valid Branch Sort Code.'));
-        } else {
-          function_exists('watchdog') && watchdog('manual_direct_debit_uk', 'PCA Bank Account Validation Error: ' . $error['debug_info'], NULL, WATCHDOG_WARNING);
         }
       }
       if ($data = $pa->HasData()) {
-        $item = $data[0];
-        if (!$item["IsDirectDebitCapable"]) {
+        if (isset($data->IsDirectDebitCapable) && $data->IsDirectDebitCapable == 'False') {
           form_error($element['account'], t('Please provide an account that can accept direct debits.'));
         }
-        if (!$item["IsCorrect"]) {
+        if (isset($data->IsCorrect) && $data->IsCorrect == 'False') {
           form_error($element['account'], t('Please provide valid account details.'));
         }
       }
