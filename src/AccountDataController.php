@@ -19,10 +19,12 @@ class AccountDataController extends \PaymentMethodController implements PaymentR
    * Define callbacks and classes.
    */
   public function __construct() {
-    $this->payment_method_configuration_form_elements_callback = '\Drupal\manual_direct_debit\configuration_form';
-    $this->payment_configuration_form_elements_callback        = 'payment_forms_method_form';
+    $this->payment_configuration_form_elements_callback = 'payment_forms_payment_form';
     $this->title = t('Collect account data (SEPA)');
-    $this->form = new \Drupal\payment_forms\AccountForm();
+  }
+
+  public function paymentForm() {
+    return new \Drupal\payment_forms\AccountForm();
   }
 
   /**

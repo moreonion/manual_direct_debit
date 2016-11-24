@@ -2,12 +2,12 @@
 
 namespace Drupal\manual_direct_debit_uk;
 
-use \Drupal\payment_forms\FormInterface;
+use \Drupal\payment_forms\PaymentFormInterface;
 
-class AccountForm implements FormInterface {
+class AccountForm implements PaymentFormInterface {
   static protected $id = 0;
 
-  public function getForm(array &$form, array &$form_state, \Payment $payment) {
+  public function form(array $form, array &$form_state, \Payment $payment) {
     $context = $payment->contextObj;
     if ($context && $context->value('donation_interval') != 1) {
       $form['payment_date'] = array(
@@ -38,7 +38,7 @@ class AccountForm implements FormInterface {
     return $form;
   }
 
-  public function validateForm(array &$element, array &$form_state, \Payment $payment) {
+  public function validate(array $element, array &$form_state, \Payment $payment) {
     $values = &drupal_array_get_nested_value($form_state['values'], $element['#parents']);
     // In case we have a one-off donation.
     $values += array('payment_date' => NULL);
