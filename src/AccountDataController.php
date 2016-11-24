@@ -34,13 +34,13 @@ class AccountDataController extends \PaymentMethodController implements PaymentR
    * @see \Drupal\payment_forms\AccountForm
    */
   public function validate(\Payment $payment, \PaymentMethod $payment_method, $strict) {
-    if (!$strict) {
-      return parent::validate($payment, $payment_method, $strict);
-    }
+    parent::validate($payment, $payment_method, $strict);
 
-    $data = &$payment->method_data;
-    if (isset($data['iban'])) {
-      $data['country'] = substr($data['iban'], 0, 2);
+    if ($strict) {
+      $data = &$payment->method_data;
+      if (isset($data['iban'])) {
+        $data['country'] = substr($data['iban'], 0, 2);
+      }
     }
   }
 
