@@ -7,18 +7,57 @@ use \Drupal\payment_forms\PaymentFormInterface;
 class AccountForm implements PaymentFormInterface {
   static protected $id = 0;
 
+  /**
+   * Gives all day choices.
+   */
+  public static function allDayOptions() {
+    return [
+      '1' => t('1st'),
+      '2' => t('2nd'),
+      '3' => t('3rd'),
+      '4' => t('4th'),
+      '5' => t('5th'),
+      '6' => t('6th'),
+      '7' => t('7th'),
+      '8' => t('8th'),
+      '9' => t('9th'),
+      '10' => t('10th'),
+      '11' => t('11th'),
+      '12' => t('12th'),
+      '13' => t('13th'),
+      '14' => t('14th'),
+      '15' => t('15th'),
+      '16' => t('16th'),
+      '17' => t('17th'),
+      '18' => t('18th'),
+      '19' => t('19th'),
+      '20' => t('20th'),
+      '21' => t('21st'),
+      '22' => t('22nd'),
+      '23' => t('23rd'),
+      '24' => t('24th'),
+      '25' => t('25th'),
+      '26' => t('26th'),
+      '27' => t('27th'),
+      '28' => t('28th'),
+    ];
+  }
+
   public function form(array $form, array &$form_state, \Payment $payment) {
+    $cd = $payment->method->controller_data;
+    $cd += ['day_options' => ['1', '15', '28']];
     $context = $payment->contextObj;
     if ($context && $context->value('donation_interval') != 1) {
+      $options = [];
+      $all_options = static::allDayOptions();
+      foreach ($cd['day_options'] as $day) {
+        $options[$day] = t('@day of the month', ['@day' => $all_options[$day]]);
+      }
       $form['payment_date'] = array(
         '#type' => 'select',
         '#title' => t('Payment date'),
         '#description' => t('On which date would you like the donation to be made each month?'),
-        '#options' => array(
-          '1st' => '1st of the month',
-          '15th' => '15th of the month',
-          '28th' => '28th of the month',
-        ),
+        '#options' => $options,
       );
     }
     $form['holder'] = array(

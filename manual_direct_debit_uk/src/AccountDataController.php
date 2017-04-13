@@ -2,7 +2,12 @@
 
 namespace Drupal\manual_direct_debit_uk;
 
-class AccountDataController extends \Drupal\manual_direct_debit\AccountDataController {
+use \Drupal\manual_direct_debit\AccountDataController as _Controller;
+
+class AccountDataController extends _Controller {
+
+  public $payment_method_configuration_form_elements_callback = 'payment_forms_method_configuration_form';
+
   /**
    * Define callbacks and classes.
    */
@@ -12,7 +17,14 @@ class AccountDataController extends \Drupal\manual_direct_debit\AccountDataContr
   }
 
   public function paymentForm() {
-    return new \Drupal\manual_direct_debit_uk\AccountForm();
+    return new AccountForm();
+  }
+
+  /**
+   * Get a configuration form instance.
+   */
+  public function configurationForm() {
+    return new ControllerSettingsForm();
   }
 
   function validate(\Payment $payment, \PaymentMethod $payment_method, $strict) {
