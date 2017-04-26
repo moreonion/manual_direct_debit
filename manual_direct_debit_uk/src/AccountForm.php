@@ -51,7 +51,7 @@ class AccountForm implements PaymentFormInterface {
       $options = [];
       $all_options = static::allDayOptions();
       foreach ($cd['day_options'] as $day) {
-        $options[$day] = t('@day of the month', ['@day' => $all_options[$day]]);
+        $options[$day] = $all_options[$day];
       }
       $form['payment_date'] = array(
         '#type' => 'select',
