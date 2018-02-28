@@ -56,7 +56,7 @@ class AccountForm implements PaymentFormInterface {
       $form['payment_date'] = array(
         '#type' => 'select',
         '#title' => t('Payment date'),
-        '#description' => t('On which date would you like the donation to be made each month?'),
+        '#description' => t('On which date would you like the donation to be made?'),
         '#options' => $options,
       );
     }
