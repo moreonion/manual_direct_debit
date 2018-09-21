@@ -64,15 +64,15 @@ class AccountForm implements PaymentFormInterface {
       '#type' => 'textfield',
       '#title' => t('Account holder(s)'),
     );
-    $form['account'] = array(
-      '#type' => 'textfield',
-      '#title' => t('Account Number'),
-      '#maxlength' => 10,
-    );
     $form['bank_code'] = array(
       '#type' => 'textfield',
       '#title' => t('Branch Sort Code'),
       '#maxlength' => 8,
+    );
+    $form['account'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Account Number'),
+      '#maxlength' => 10,
     );
     return $form;
   }
