@@ -8,6 +8,7 @@ class AccountDataController extends _Controller {
 
   public $controller_data_defaults = [
     'day_options' => ['1', '15', '28'],
+    'long_account_numbers' => TRUE,
   ];
 
   public $payment_method_configuration_form_elements_callback = 'payment_forms_method_configuration_form';

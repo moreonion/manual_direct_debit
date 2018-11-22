@@ -26,6 +26,12 @@ class ControllerSettingsForm implements MethodFormInterface {
       '#default_value' => $cd['day_options'],
     ];
 
+    $form['long_account_numbers'] = [
+      '#type' => 'checkbox',
+      '#title' => t('Allow long account numbers with 9 or 10 digits.'),
+      '#default_value' => $cd['long_account_numbers'],
+    ];
+
     return $form;
   }
 

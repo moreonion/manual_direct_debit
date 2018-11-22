@@ -79,7 +79,7 @@ class AccountForm implements PaymentFormInterface {
     $form['account'] = array(
       '#type' => 'textfield',
       '#title' => t('Account Number'),
-      '#maxlength' => 10,
+      '#maxlength' => $cd['long_account_numbers'] ? 10 : 8,
     );
     return $form;
   }
@@ -97,7 +97,8 @@ class AccountForm implements PaymentFormInterface {
     }
 
     $values['account'] = trim($values['account']);
-    if (!$values['account'] || !preg_match('/^[0-9]{6,10}$/', $values['account'])) {
+    $max_len = $element['account']['#maxlength'];
+    if (!$values['account'] || !preg_match("/^[0-9]{6,$max_len}\$/", $values['account'])) {
       form_error($element['account'], t('Please enter valid Account Number.'));
     }
 
