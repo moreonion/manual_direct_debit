@@ -2,7 +2,8 @@
 
 namespace Drupal\manual_direct_debit_uk;
 
-use \Drupal\payment_forms\MethodFormInterface;
+use Drupal\little_helpers\ArrayConfig;
+use Drupal\payment_forms\MethodFormInterface;
 
 /**
  * Additional settings form for manual_direct_debit_uk payment methods.
@@ -14,7 +15,7 @@ class ControllerSettingsForm implements MethodFormInterface {
    */
   public function form(array $form, array &$form_state, \PaymentMethod $method) {
     $cd = $method->controller_data;
-    $cd += ['day_options' => ['1', '15', '28']];
+    ArrayConfig::mergeDefaults($cd, $method->controller->controller_data_defaults);
 
     $form['day_options'] = [
       '#type' => 'select',

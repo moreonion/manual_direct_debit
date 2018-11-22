@@ -2,7 +2,8 @@
 
 namespace Drupal\manual_direct_debit_uk;
 
-use \Drupal\payment_forms\PaymentFormInterface;
+use Drupal\little_helpers\ArrayConfig;
+use Drupal\payment_forms\PaymentFormInterface;
 
 /**
  * Payment controller for UK direct debit payments.
@@ -50,7 +51,8 @@ class AccountForm implements PaymentFormInterface {
    */
   public function form(array $form, array &$form_state, \Payment $payment) {
     $cd = $payment->method->controller_data;
-    $cd += ['day_options' => ['1', '15', '28']];
+    ArrayConfig::mergeDefaults($cd, $payment->method->controller->controller_data_defaults);
+
     $context = $payment->contextObj;
     if ($context && $context->value('donation_interval') != 1) {
       $options = [];
