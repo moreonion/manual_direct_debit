@@ -6,4 +6,5 @@ dependencies[] = little_helpers
 dependencies[] = manual_direct_debit
 dependencies[] = payment
 dependencies[] = payment_context
+dependencies[] = payment_controller_data
 dependencies[] = psr0
