@@ -9,7 +9,7 @@ use \Drupal\payment_forms\MethodFormInterface;
  */
 class ControllerSettingsForm implements MethodFormInterface {
 
-    /**
+  /**
    * Returns a new configuration form.
    */
   public function form(array $form, array &$form_state, \PaymentMethod $method) {
@@ -35,6 +35,5 @@ class ControllerSettingsForm implements MethodFormInterface {
     $cd = drupal_array_get_nested_value($form_state['values'], $element['#parents']);
     $method->controller_data = $cd;
   }
-
 
 }
