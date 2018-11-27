@@ -2,7 +2,9 @@
 
 namespace Drupal\manual_direct_debit_uk;
 
-class FormBuilderFormBaseTest extends \Drupal\Tests\DrupalUnitTestCase {
+use Upal\DrupalUnitTestCase;
+
+class FormBuilderFormBaseTest extends DrupalUnitTestCase {
   protected function paymentMethod() {
     $name = 'Manual Direct Debit UK';
     $controller = payment_method_controller_load('\Drupal\manual_direct_debit_uk\AccountDataController');
