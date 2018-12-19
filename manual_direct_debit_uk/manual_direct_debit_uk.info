@@ -2,7 +2,9 @@ name = Manual direct debit UK
 description = Manual direct debit payment method for UK bank accounts.
 core = 7.x
 
+dependencies[] = little_helpers
 dependencies[] = manual_direct_debit
 dependencies[] = payment
 dependencies[] = payment_context
+dependencies[] = payment_controller_data
 dependencies[] = psr0

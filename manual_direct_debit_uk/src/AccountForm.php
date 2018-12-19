@@ -2,12 +2,15 @@
 
 namespace Drupal\manual_direct_debit_uk;
 
-use \Drupal\payment_forms\PaymentFormInterface;
+use Drupal\little_helpers\ArrayConfig;
+use Drupal\payment_forms\PaymentFormInterface;
 
+/**
+ * Payment controller for UK direct debit payments.
+ */
 class AccountForm implements PaymentFormInterface {
-  static protected $id = 0;
 
-  /**
+ /**
    * Gives all day choices.
    */
   public static function allDayOptions() {
@@ -43,9 +46,13 @@ class AccountForm implements PaymentFormInterface {
     ];
   }
 
+  /**
+   * Generate form element for entering account details.
+   */
   public function form(array $form, array &$form_state, \Payment $payment) {
     $cd = $payment->method->controller_data;
-    $cd += ['day_options' => ['1', '15', '28']];
+    ArrayConfig::mergeDefaults($cd, $payment->method->controller->controller_data_defaults);
+
     $context = $payment->contextObj;
     if ($context && $context->value('donation_interval') != 1) {
       $options = [];
@@ -56,7 +63,7 @@ class AccountForm implements PaymentFormInterface {
       $form['payment_date'] = array(
         '#type' => 'select',
         '#title' => t('Payment date'),
-        '#description' => t('On which date would you like the donation to be made each month?'),
+        '#description' => t('On which date would you like the donation to be made?'),
         '#options' => $options,
       );
     }
@@ -64,19 +71,22 @@ class AccountForm implements PaymentFormInterface {
       '#type' => 'textfield',
       '#title' => t('Account holder(s)'),
     );
-    $form['account'] = array(
-      '#type' => 'textfield',
-      '#title' => t('Account Number'),
-      '#maxlength' => 10,
-    );
     $form['bank_code'] = array(
       '#type' => 'textfield',
       '#title' => t('Branch Sort Code'),
       '#maxlength' => 8,
     );
+    $form['account'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Account Number'),
+      '#maxlength' => $cd['long_account_numbers'] ? 10 : 8,
+    );
     return $form;
   }
 
+  /**
+   * Validate the account form fieldset.
+   */
   public function validate(array $element, array &$form_state, \Payment $payment) {
     $values = &drupal_array_get_nested_value($form_state['values'], $element['#parents']);
     // In case we have a one-off donation.
@@ -90,7 +100,8 @@ class AccountForm implements PaymentFormInterface {
     $prevalidation_failed = FALSE;
 
     $values['account'] = trim($values['account']);
-    if (!$values['account'] || !preg_match('/^[0-9]{6,10}$/', $values['account'])) {
+    $max_len = $element['account']['#maxlength'];
+    if (!$values['account'] || !preg_match("/^[0-9]{6,$max_len}\$/", $values['account'])) {
       form_error($element['account'], t('Please enter valid Account Number.'));
       $prevalidation_failed = TRUE;
     }
@@ -131,4 +142,5 @@ class AccountForm implements PaymentFormInterface {
     $method_data['bank_code'] = $values['bank_code'];
     $method_data['payment_date'] = $values['payment_date'];
   }
+
 }
