@@ -1,7 +1,9 @@
 language: php
+services:
+  - mysql
 
 php:
-  - 7.0
+  - 7.1
 
 mysql:
   database: drupal
@@ -15,14 +17,14 @@ cache:
 
 install:
   - export PATH="$HOME/.composer/vendor/bin:$PATH"
-  - composer global require drush/drush:8.1.* dflydev/hawk torotil/upal:1.1.3
+  - composer global require drush/drush:8.1.* torotil/upal:1.1.3 phpunit/phpunit:6.4.*
 
 before_script:
   - repo=`pwd`
   - root=$HOME/test-root
   - mysql -e 'create database drupal'
-  - php -d include_path=`pwd` -d sendmail_path=`which true` ~/.composer/vendor/bin/drush.php --yes core-quick-drupal --core=drupal-7.x --profile=testing --no-server --db-url=mysql://root:@127.0.0.1/drupal --root=$root
-  - ln -s $repo $root/sites/all/modules/manual_direct_debit
+  - php -d include_path=`pwd` -d sendmail_path=`which true` ~/.composer/vendor/bin/drush.php --yes core-quick-drupal --core=drupal-7.67 --profile=testing --no-server --db-url=mysql://root:@127.0.0.1/drupal --root=$root
+  - ln -s $repo $root/sites/all/modules/module_under_test
   - cd $root
   - drush dl little_helpers payment payment_context payment_controller_data payment_forms psr0
   - drush --yes pm-enable manual_direct_debit manual_direct_debit_uk
