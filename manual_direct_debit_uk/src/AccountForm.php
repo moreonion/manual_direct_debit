@@ -75,11 +75,13 @@ class AccountForm implements PaymentFormInterface {
       '#type' => 'textfield',
       '#title' => t('Branch Sort Code'),
       '#maxlength' => 8,
+      '#attributes' => ['placeholder' => t('eg. 12-34-56')],
     );
     $form['account'] = array(
       '#type' => 'textfield',
       '#title' => t('Account Number'),
       '#maxlength' => $cd['long_account_numbers'] ? 10 : 8,
+      '#attributes' => ['placeholder' => t('eg. 12345678')],
     );
     return $form;
   }
