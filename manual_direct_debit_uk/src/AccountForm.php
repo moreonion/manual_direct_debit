@@ -62,8 +62,8 @@ class AccountForm implements PaymentFormInterface {
       }
       $form['payment_date'] = array(
         '#type' => 'select',
-        '#title' => t('Payment date'),
-        '#description' => t('On which date would you like the donation to be made?'),
+        '#title' => t('Payment day'),
+        '#description' => t('On which day of the month would you like the payment to be made?'),
         '#options' => $options,
       );
     }
@@ -73,13 +73,15 @@ class AccountForm implements PaymentFormInterface {
     );
     $form['bank_code'] = array(
       '#type' => 'textfield',
-      '#title' => t('Branch Sort Code'),
+      '#title' => t('Sort Code'),
       '#maxlength' => 8,
+      '#attributes' => ['placeholder' => t('eg. 12-34-56')],
     );
     $form['account'] = array(
       '#type' => 'textfield',
       '#title' => t('Account Number'),
       '#maxlength' => $cd['long_account_numbers'] ? 10 : 8,
+      '#attributes' => ['placeholder' => t('eg. 12345678')],
     );
     return $form;
   }
