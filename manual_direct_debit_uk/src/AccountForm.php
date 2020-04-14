@@ -76,12 +76,21 @@ class AccountForm implements PaymentFormInterface {
       '#title' => t('Sort Code'),
       '#maxlength' => 8,
       '#attributes' => ['placeholder' => t('eg. 12-34-56')],
+      '#cleave' => [
+        'blocks' => [2, 2, 2],
+        'delimiter' => '-',
+        'numericOnly' => TRUE,
+      ],
     );
     $form['account'] = array(
       '#type' => 'textfield',
       '#title' => t('Account Number'),
       '#maxlength' => $cd['long_account_numbers'] ? 10 : 8,
       '#attributes' => ['placeholder' => t('eg. 12345678')],
+      '#cleave' => [
+        'blocks' => [10],
+        'numericOnly' => TRUE,
+      ],
     );
     return $form;
   }
