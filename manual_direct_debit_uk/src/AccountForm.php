@@ -107,15 +107,43 @@ class AccountForm implements PaymentFormInterface {
       form_error($element['holder'], t('Please enter the name of the account holder(s).'));
     }
 
+    // Simple pre-validation
+    $prevalidation_failed = FALSE;
+
     $values['account'] = trim($values['account']);
     $max_len = $element['account']['#maxlength'];
     if (!$values['account'] || !preg_match("/^[0-9]{6,$max_len}\$/", $values['account'])) {
       form_error($element['account'], t('Please enter valid Account Number.'));
+      $prevalidation_failed = TRUE;
     }
 
     $values['bank_code'] = trim(str_replace('-', '', $values['bank_code']));
     if (!$values['bank_code'] || !preg_match('/^[0-9]{6}$/', $values['bank_code'])) {
       form_error($element['bank_code'], t('Please enter valid Branch Sort Code.'));
+      $prevalidation_failed = TRUE;
+    }
+
+    if (!$prevalidation_failed && $key = variable_get('pca_bank_account_validation_key')) {
+      $pa = new AccountValidation($key, $values['account'], $values['bank_code']);
+      $validation = $pa->makeRequest();
+      if (isset($validation->Error)) {
+        switch ($validation->Error) {
+          case '1001':
+          case '1002':
+            form_error($element['bank_code'], t('Please enter a valid Branch Sort Code.'));
+            break;
+          case '1003':
+          case '1004':
+            form_error($element['account'], t('Please enter a valid Account Number.'));
+            break;
+        }
+      }
+      if (isset($validation->IsDirectDebitCapable) && $validation->IsDirectDebitCapable == 'False') {
+        form_error($element['account'], t('Please provide an account that can accept direct debits.'));
+      }
+      if (isset($validation->IsCorrect) && $validation->IsCorrect == 'False') {
+        form_error($element['account'], t('Please provide valid account details.'));
+      }
     }
 
     $method_data = &$payment->method_data;
